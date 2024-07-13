@@ -6,20 +6,21 @@ import matplotlib.pyplot as plt
 
 # model
 
+N = 5
 ETA = 1e-3
 DELTA = 1e-2
 MAXITER = 100
 
 
 class M:
-    def __init__(self, x, y):
-        self.x_raw, self.y_raw = x, y
+    def __init__(self, n, x, y):
+        self.n, self.x_raw, self.y_raw = n, x, y
         self.x_mu, self.x_sigma, self.x = self.standardize(x)
         self.y_mu, self.y_sigma, self.y = self.standardize(y)
         self.x = self.vectorlize(self.x)
         self.x_t = self.x.T
         self.y = np.array([self.y]).T
-        self.theta = np.random.randn(3, 1)
+        self.theta = np.random.randn(n, 1)
         self.e = self.get_e()
 
     @staticmethod
@@ -27,9 +28,8 @@ class M:
         mu, sigma = a.mean(), a.std()
         return mu, sigma, (a - mu) / sigma
 
-    @staticmethod
-    def vectorlize(a):
-        return np.array([a**0, a, a**2]).T
+    def vectorlize(self, a):
+        return np.array([a**i for i in range(self.n)]).T
 
     @property
     def f(self):
@@ -82,9 +82,9 @@ def load_data(f):
     return train[:, 0], train[:, 1]
 
 
-train_x, train_y = load_data("lr/data.csv")
+train_x, train_y = load_data("lrf/data.csv")
 
-m = M(train_x, train_y)
+m = M(N, train_x, train_y)
 
 plt.cla()
 m.plot()

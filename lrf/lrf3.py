@@ -16,7 +16,10 @@ class M:
         self.x_raw, self.y_raw = x, y
         self.x_mu, self.x_sigma, self.x = self.standardize(x)
         self.y_mu, self.y_sigma, self.y = self.standardize(y)
-        self.theta0, self.theta1 = np.random.rand(), np.random.rand()
+        self.x = self.vectorlize(self.x)
+        self.x_t = self.x.T
+        self.y = np.array([self.y]).T
+        self.theta = np.random.randn(3, 1)
         self.e = self.get_e()
 
     @staticmethod
@@ -24,36 +27,42 @@ class M:
         mu, sigma = a.mean(), a.std()
         return mu, sigma, (a - mu) / sigma
 
+    @staticmethod
+    def vectorlize(a):
+        return np.array([a**0, a, a**2]).T
+
     @property
     def f(self):
         return self.get_f(self.x)
 
     def get_f(self, x):
-        return self.theta0 + self.theta1 * x
+        return x @ self.theta
 
     def get_e(self):
         return 0.5 * np.sum((self.y - self.f) ** 2)
 
     def get_f_raw(self, x_raw):
         x = (x_raw - self.x_mu) / self.x_sigma
+        x = self.vectorlize(x)
         f = self.get_f(x)
+        f = f[:, 0]
         return f * self.y_sigma + self.y_mu
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        f_minus_y = self.f - self.y
-        self.theta0 -= ETA * np.sum(f_minus_y)
-        self.theta1 -= ETA * np.sum(f_minus_y * self.x)
+        self.theta -= ETA * (self.x_t @ (self.f - self.y))
         e = self.get_e()
         self.e, self.d = e, self.e - e
         return self
 
     def plot(self):
-        fx = np.linspace(self.x.min(), self.x.max(), 100)
-        fy = self.get_f(fx)
-        plt.plot(self.x, self.y, "o")
+        x = self.x[:, 1]
+        y = self.y[:, 0]
+        fx = np.linspace(x.min(), x.max(), 100)
+        fy = self.get_f(self.vectorlize(fx))[:, 0]
+        plt.plot(x, y, "o")
         plt.plot(fx, fy)
 
     def plot_raw(self):
@@ -73,7 +82,7 @@ def load_data(f):
     return train[:, 0], train[:, 1]
 
 
-train_x, train_y = load_data("lr/data.csv")
+train_x, train_y = load_data("lrf/data.csv")
 
 m = M(train_x, train_y)
 
