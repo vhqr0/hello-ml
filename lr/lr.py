@@ -82,7 +82,7 @@ def load_data(f):
     return train[:, 0], train[:, 1]
 
 
-train_x, train_y = load_data("data.csv")
+train_x, train_y = load_data("lr/data.csv")
 
 m = M(N, train_x, train_y)
 
