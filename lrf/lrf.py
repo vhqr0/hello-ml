@@ -20,7 +20,7 @@ class M:
         self.x = self.vectorlize(self.x)
         self.x_t = self.x.T
         self.y = np.array([self.y]).T
-        self.theta = np.random.randn(n, 1)
+        self.theta = np.random.rand(n, 1)
         self.e = self.get_e()
 
     @staticmethod
